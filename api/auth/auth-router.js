@@ -1,7 +1,6 @@
 const router = require('express').Router();
 
 router.post('/register', async (req, res, next) => {
-  res.end('implement register, please!');
   /*
     IMPLEMENT
     You are welcome to build additional middlewares to help with the endpoint's functionality.
@@ -27,10 +26,14 @@ router.post('/register', async (req, res, next) => {
     4- On FAILED registration due to the `username` being taken,
       the response body should include a string exactly as follows: "username taken".
   */
+  try {
+    res.json('registering user')
+  } catch(err) {
+    next(err);
+  }
 });
 
 router.post('/login', async (req, res, next) => {
-  res.end('implement login, please!');
   /*
     IMPLEMENT
     You are welcome to build additional middlewares to help with the endpoint's functionality.
@@ -54,6 +57,11 @@ router.post('/login', async (req, res, next) => {
     4- On FAILED login due to `username` not existing in the db, or `password` being incorrect,
       the response body should include a string exactly as follows: "invalid credentials".
   */
+  try {
+    res.json('logging in user')
+  } catch(err) {
+    next(err);
+  }
 });
 
 module.exports = router;

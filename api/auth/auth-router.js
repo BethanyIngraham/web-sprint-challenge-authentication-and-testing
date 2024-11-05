@@ -1,10 +1,21 @@
 const router = require('express').Router();
+const {
+  validatePayload, 
+  checkReqBody, 
+  checkUsernameExists, 
+  checkUsernameAvailability, 
+  checkPasswordMatches
+} = require('../middleware/auth-middleware');
+const User = require('./auth-model');
+const bcrypt = require('bcryptjs');
 
-router.post('/register', async (req, res, next) => {
+router.post('/register', 
+  checkReqBody, validatePayload, checkUsernameExists,
+   async (req, res, next) => {
   /*
     IMPLEMENT
     You are welcome to build additional middlewares to help with the endpoint's functionality.
-    DO NOT EXCEED 2^8 ROUNDS OF HASHING!
+    DO NOT EXCEED 2^8 ROUNDS OF HASHING! 
 
     1- In order to register a new account the client must provide `username` and `password`:
       {
@@ -33,7 +44,9 @@ router.post('/register', async (req, res, next) => {
   }
 });
 
-router.post('/login', async (req, res, next) => {
+router.post('/login', 
+  checkReqBody, checkUsernameAvailability, checkPasswordMatches,
+   async (req, res, next) => {
   /*
     IMPLEMENT
     You are welcome to build additional middlewares to help with the endpoint's functionality.

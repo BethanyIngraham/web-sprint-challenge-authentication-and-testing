@@ -1,9 +1,3 @@
-function validatePayload(req, res, next) { 
-    // username and password requirements - register
-    console.log('validating payload')
-    next()
-}
-
 function checkReqBody(req, res, next) {
     const {username, password} = req.body;
     if(!username || !password) {
@@ -14,6 +8,40 @@ function checkReqBody(req, res, next) {
     } else {
         next();
     }
+}
+
+function validatePayload(req, res, next) { 
+    const username = typeof req.body.username === 'string' ? req.body.username.trim() : '';
+    const password = typeof req.body.password === 'string' ? req.body.password.trim() : '';
+
+    req.body.username = username;
+    req.body.password = password;
+
+    if(
+        typeof username !== 'string' ||  
+        username === '' ||
+        username.length < 5 ||
+        username.length > 20
+    ) {
+        return next({
+            status: 400,
+            message: 'Please enter a username between 5 and 20 characters'
+        });
+    }
+
+    if( 
+        typeof password !== 'string' ||  
+        password === '' ||      
+        password.length < 3 ||
+        password.length > 12 
+    ) {
+        return next({
+            status: 400,
+            message: 'Please enter a password between 3 and 12 characters'
+        });
+    }
+
+    next();
 }
 
 function checkUsernameExists(req, res, next) { 
@@ -38,8 +66,8 @@ function checkPasswordMatches(req, res, next) {
 }
 
 module.exports = {
-    validatePayload,
     checkReqBody,
+    validatePayload,
     checkUsernameExists,
     checkUsernameAvailability,
     checkPasswordMatches

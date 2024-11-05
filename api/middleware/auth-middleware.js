@@ -5,10 +5,15 @@ function validatePayload(req, res, next) {
 }
 
 function checkReqBody(req, res, next) {
-    // check if username and password are given in request body - register and login
-    // if missing -> error message: "username and password required"
-    console.log('checking for username and password')
-    next()
+    const {username, password} = req.body;
+    if(!username || !password) {
+       next({
+        status: 400,
+        message: 'username and password required'
+       });
+    } else {
+        next();
+    }
 }
 
 function checkUsernameExists(req, res, next) { 

@@ -1,3 +1,6 @@
+const User = require('../auth/auth-model');
+const bcrypt = require('bcryptjs');
+
 function checkReqBody(req, res, next) {
     const {username, password} = req.body;
     if(!username || !password) {
@@ -11,8 +14,13 @@ function checkReqBody(req, res, next) {
 }
 
 function validatePayload(req, res, next) { 
-    const username = typeof req.body.username === 'string' ? req.body.username.trim() : '';
-    const password = typeof req.body.password === 'string' ? req.body.password.trim() : '';
+    const username = 
+        typeof req.body.username === 'string' ? 
+        req.body.username.trim() : '';
+
+    const password = 
+        typeof req.body.password === 'string' ? 
+        req.body.password.trim() : '';
 
     req.body.username = username;
     req.body.password = password;
@@ -24,7 +32,7 @@ function validatePayload(req, res, next) {
         username.length > 20
     ) {
         return next({
-            status: 400,
+            status: 422,
             message: 'Please enter a username between 5 and 20 characters'
         });
     }
@@ -36,27 +44,39 @@ function validatePayload(req, res, next) {
         password.length > 12 
     ) {
         return next({
-            status: 400,
+            status: 422,
             message: 'Please enter a password between 3 and 12 characters'
         });
     }
-
+    
     next();
 }
 
-function checkUsernameExists(req, res, next) { 
-    // username must not exist in users table - register
-    // if taken -> error message: "username taken"
-    console.log('checking if username already exists')
-    next()
+async function checkUsernameAvailability(req, res, next) {
+    try {
+        const {username} = req.body;
+        const user = await User.findBy({username: username})
+       
+        if(user.length > 0) {
+            next({
+                status: 422,
+                message: 'username taken'
+            });
+        } else {
+            next();
+        }
+    } catch(err) {
+        next(err);
+    }
 }
 
-function checkUsernameAvailability(req, res, next) {
+function checkUsernameExists(req, res, next) { 
     // checks if username does not exist in the db - login
-    // if it doesn't -> error message: "invalid credentials"
+    // if it doesn't already exist -> error message: "invalid credentials"
     console.log('checking if username is free')
     next()
 }
+
 
 function checkPasswordMatches(req, res, next) {
     // given hashed password matches hashed password in db

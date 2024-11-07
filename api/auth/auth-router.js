@@ -10,7 +10,7 @@ const User = require('./auth-model');
 const bcrypt = require('bcryptjs');
 
 router.post('/register', 
-  checkReqBody, validatePayload, checkUsernameExists,
+  checkReqBody, validatePayload, checkUsernameAvailability,
    async (req, res, next) => {
   /*
     IMPLEMENT
@@ -45,7 +45,7 @@ router.post('/register',
 });
 
 router.post('/login', 
-  checkReqBody, checkUsernameAvailability, checkPasswordMatches,
+  checkReqBody, checkUsernameExists, checkPasswordMatches,
    async (req, res, next) => {
   /*
     IMPLEMENT

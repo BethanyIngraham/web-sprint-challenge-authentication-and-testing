@@ -3,12 +3,12 @@ const {
   validatePayload, 
   checkReqBody, 
   checkUsernameExists, 
-  checkUsernameAvailability, 
-  checkPasswordMatches
+  checkUsernameAvailability
 } = require('../middleware/auth-middleware');
 const {JWT_SECRET, ROUNDS} = require('../secrets/index');
 const User = require('./auth-model');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 router.post('/register', 
   checkReqBody, validatePayload, checkUsernameAvailability,
@@ -49,7 +49,7 @@ router.post('/register',
 });
 
 router.post('/login', 
-  checkReqBody, checkUsernameExists, checkPasswordMatches,
+  checkReqBody, checkUsernameExists,
    async (req, res, next) => {
   /*
     IMPLEMENT
@@ -75,10 +75,33 @@ router.post('/login',
       the response body should include a string exactly as follows: "invalid credentials".
   */
   try {
-    res.json('logging in user')
+    const {password} = req.body;
+    if(bcrypt.compareSync(password, req.user.password)) {
+      const token = generateToken(req.user);
+      res.status(200).json({
+        message: `welcome, ${req.user.username}`,
+        token
+      });
+    } else {
+      next({
+        status: 401,
+        message: 'invalid credentials'
+      });
+    }
   } catch(err) {
     next(err);
   }
 });
+
+function generateToken(user) {
+  const payload = {
+    subject: user.id,
+    username: user.username
+  }
+  const options = {
+    expiresIn: '1d'
+  }
+  return jwt.sign(payload, JWT_SECRET, options)
+}
 
 module.exports = router;

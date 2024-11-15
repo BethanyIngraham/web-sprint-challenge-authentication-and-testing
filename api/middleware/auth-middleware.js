@@ -1,5 +1,4 @@
 const User = require('../auth/auth-model');
-const bcrypt = require('bcryptjs');
 
 function checkReqBody(req, res, next) {
     const {username, password} = req.body;
@@ -33,7 +32,7 @@ function validatePayload(req, res, next) {
     ) {
         return next({
             status: 422,
-            message: 'Please enter a username between 5 and 20 characters'
+            message: 'Please enter a username between 2 and 20 characters'
         });
     }
 
@@ -75,14 +74,15 @@ async function checkUsernameAvailability(req, res, next) {
 async function checkUsernameExists(req, res, next) { 
     try {
         const {username} = req.body;
-        const user = await User.findBy({username: username})
+        const user = await User.findBy({username: username});
        
         if(!user.length) {
             next({
-                status: 422,
+                status: 401,
                 message: 'invalid credentials'
             });
         } else {
+            req.user = user[0];
             next();
         }
     } catch(err) {
@@ -90,18 +90,9 @@ async function checkUsernameExists(req, res, next) {
     }
 }
 
-
-function checkPasswordMatches(req, res, next) {
-    // given hashed password matches hashed password in db
-    // if it doesn't match - > error message: "invalid credentials"
-    console.log('checking for correct password')
-    next()
-}
-
 module.exports = {
     checkReqBody,
     validatePayload,
     checkUsernameExists,
-    checkUsernameAvailability,
-    checkPasswordMatches
+    checkUsernameAvailability
 }

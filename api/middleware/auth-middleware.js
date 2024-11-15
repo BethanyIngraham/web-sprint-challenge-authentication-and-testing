@@ -55,12 +55,32 @@ function validatePayload(req, res, next) {
 async function checkUsernameAvailability(req, res, next) {
     try {
         const {username} = req.body;
-        const user = await User.findBy({username: username})
+        const user = await User.findBy({username: username});
        
         if(user.length > 0) {
-            next({
+            return next({
                 status: 422,
                 message: 'username taken'
+            });
+        } 
+
+        req.user = user[0];
+        next();
+
+    } catch(err) {
+        next(err);
+    }
+}
+
+async function checkUsernameExists(req, res, next) { 
+    try {
+        const {username} = req.body;
+        const user = await User.findBy({username: username})
+       
+        if(!user.length) {
+            next({
+                status: 422,
+                message: 'invalid credentials'
             });
         } else {
             next();
@@ -68,13 +88,6 @@ async function checkUsernameAvailability(req, res, next) {
     } catch(err) {
         next(err);
     }
-}
-
-function checkUsernameExists(req, res, next) { 
-    // checks if username does not exist in the db - login
-    // if it doesn't already exist -> error message: "invalid credentials"
-    console.log('checking if username is free')
-    next()
 }
 
 

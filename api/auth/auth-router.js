@@ -6,6 +6,7 @@ const {
   checkUsernameAvailability, 
   checkPasswordMatches
 } = require('../middleware/auth-middleware');
+const {JWT_SECRET, ROUNDS} = require('../secrets/index');
 const User = require('./auth-model');
 const bcrypt = require('bcryptjs');
 
@@ -38,7 +39,10 @@ router.post('/register',
       the response body should include a string exactly as follows: "username taken".
   */
   try {
-    res.json('registering user')
+    const {username, password} = req.body;
+    const hash = bcrypt.hashSync(password, ROUNDS);
+    const newUser = await User.add({username, password: hash})
+    res.status(201).json(newUser)
   } catch(err) {
     next(err);
   }

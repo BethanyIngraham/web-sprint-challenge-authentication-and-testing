@@ -28,7 +28,7 @@ function validatePayload(req, res, next) {
     if(
         typeof username !== 'string' ||  
         username === '' ||
-        username.length < 5 ||
+        username.length < 2 ||
         username.length > 20
     ) {
         return next({
